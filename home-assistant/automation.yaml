@@ -1,0 +1,93 @@
+alias: Sonoff Licht Logica
+mode: restart
+
+trigger:
+  # Toggle inputs (manuele bediening)
+  - id: toggle_knop
+    platform: state
+    entity_id: button.scene_switch
+
+  - id: toggle_knop
+    platform: state
+    entity_id: switch.schakelaar_licht
+
+  # Manuele timer verlopen
+  - id: timer_klaar
+    platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.licht_timer
+
+condition: []
+
+action:
+  - choose:
+
+      # 1) Toggle + licht UIT -> detach AAN + licht AAN + timer start (manueel aanzetten)
+      - conditions:
+          - condition: trigger
+            id: toggle_knop
+          - condition: state
+            entity_id: switch.licht
+            state: "off"
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: switch.detach_relay_mode
+          - service: switch.turn_on
+            target:
+              entity_id: switch.licht
+          - service: timer.start
+            target:
+              entity_id: timer.licht_timer
+
+      # 2) Toggle + licht AAN + detach AAN -> detach UIT + licht UIT + timer stop (manueel uitzetten)
+      - conditions:
+          - condition: trigger
+            id: toggle_knop
+          - condition: state
+            entity_id: switch.licht
+            state: "on"
+          - condition: state
+            entity_id: switch.detach_relay_mode
+            state: "on"
+        sequence:
+          - service: timer.cancel
+            target:
+              entity_id: timer.licht_timer
+          - service: switch.turn_off
+            target:
+              entity_id: switch.licht
+          - service: switch.turn_off
+            target:
+              entity_id: switch.detach_relay_mode
+
+      # 3) Toggle + licht AAN + detach UIT -> detach AAN + timer start (manuele overname; licht blijft aan)
+      - conditions:
+          - condition: trigger
+            id: toggle_knop
+          - condition: state
+            entity_id: switch.licht
+            state: "on"
+          - condition: state
+            entity_id: switch.detach_relay_mode
+            state: "off"
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: switch.detach_relay_mode
+          - service: timer.start
+            target:
+              entity_id: timer.licht_timer
+
+      # 4) Timer klaar -> licht UIT + detach UIT (einde manuele modus)
+      - conditions:
+          - condition: trigger
+            id: timer_klaar
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: switch.licht
+          - service: switch.turn_off
+            target:
+              entity_id: switch.detach_relay_mode

@@ -4,7 +4,7 @@
 ![Zigbee](https://img.shields.io/badge/Zigbee-ZBMINIR2-green)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-Professionele DIY-installatie waarbij een **Niko bewegingsmelder** gecombineerd wordt met een  
+DIY-installatie waarbij een **Niko bewegingsmelder** gecombineerd wordt met een  
 **Sonoff ZBMINIR2 Extreme Zigbee relais** voor slimme en betrouwbare lichtsturing.
 
 ---
